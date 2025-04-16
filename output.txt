@@ -1,0 +1,20 @@
+==== Testing MutableArraySequence ====
+Initial MutableArray (size: 5): [2, 3, 4, 5, 3]
+Modified MutableArray (size: 8): [5, 7, 2, 3, 4, 5, 3, 10]
+
+==== Testing ImmutableArraySequence ====
+Original ImmutableArray (size: 5): [2, 3, 4, 5, 3]
+Original After Append (size: 5): [2, 3, 4, 5, 3]
+New ImmutableArray (size: 6): [2, 3, 4, 5, 3, 4]
+
+==== Testing MutableListSequence ====
+Modified MutableList (size: 3): [50, 10, 100]
+
+==== Testing ImmutableListSequence ====
+Original ImmutableList (size: 1): [10]
+Original After Append (size: 1): [10]
+New ImmutableList (size: 2): [10, 40]
+
+==== Advanced Checks ====
+Immutable same instance? NO
+Mutable same instance? YES
