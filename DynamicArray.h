@@ -24,7 +24,7 @@ public:
     DynamicArray(const DynamicArray<T>& other) : size(other.size) {
         buffer = new T[size];
         for (int i = 0; i < size; ++i) {
-            buffer[i] = other.buffer[i];
+            buffer[i] = T(other.buffer[i]); 
         }
     }
 

@@ -12,7 +12,7 @@ class ArraySequence : public Sequence<T> {
 protected:
     DynamicArray<T>* items;
 
-    // Внутренние методы модификации
+    
     void AppendImpl(T item) {
         items->Resize(items->GetSize() + 1);
         items->Set(items->GetSize() - 1, item);
@@ -27,9 +27,7 @@ protected:
     }
 
     void InsertAtImpl(T item, int index) {
-        if (index < 0 || index > items->GetSize()) {
-            throw std::out_of_range("Index out of range");
-        }
+       
         items->Resize(items->GetSize() + 1);
         for (int i = items->GetSize() - 1; i > index; i--) {
             items->Set(i, items->Get(i - 1));
@@ -38,20 +36,40 @@ protected:
     }
 
 public:
-    // Конструкторы
-    ArraySequence(T* items, int count) : items(new DynamicArray<T>(items, count)) {}
-    ArraySequence() : items(new DynamicArray<T>(0)) {}
-    ArraySequence(const DynamicArray<T>& arr) : items(new DynamicArray<T>(arr)) {}
+    
+    ArraySequence(T* items, int count)
+        : items(new DynamicArray<T>(items, count)) {}
+
+    // Конструктор по умолчанию
+    ArraySequence()
+        : items(new DynamicArray<T>(0)) {}
+
+    // Конструктор из DynamicArray
+    ArraySequence(const DynamicArray<T>& arr)
+        : items(new DynamicArray<T>(arr)) {}
+
+    // Конструктор копирования
+    ArraySequence(const ArraySequence& other)
+        : items(new DynamicArray<T>(*other.items)) {}
+
+
+    ArraySequence& operator=(const ArraySequence& other) {
+        if (this != &other) {
+            delete items;
+            items = new DynamicArray<T>(*other.items);
+        }
+        return *this;
+    }
 
     virtual ~ArraySequence() {
         delete items;
     }
 
-    // Чисто виртуальные методы
+   
     virtual ArraySequence<T>* Instance() = 0;
     virtual ArraySequence<T>* Clone() const = 0;
 
-    // Основной интерфейс
+    
     ArraySequence<T>* Append(T item) override {
         ArraySequence<T>* newseq = Instance();
         newseq->AppendImpl(item);
@@ -70,14 +88,14 @@ public:
         return newseq;
     }
 
-    // Методы доступа
+    
     T GetFirst() const override {
-        if (items->GetSize() == 0) throw std::out_of_range("Sequence is empty");
+        
         return items->Get(0);
     }
 
     T GetLast() const override {
-        if (items->GetSize() == 0) throw std::out_of_range("Sequence is empty");
+        
         return items->Get(items->GetSize() - 1);
     }
 
@@ -89,11 +107,9 @@ public:
         return items->GetSize();
     }
 
-    // Получение подпоследовательности
+    
     ArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override {
-        if (startIndex < 0 || endIndex >= items->GetSize() || startIndex > endIndex) {
-            throw std::out_of_range("Invalid subsequence range");
-        }
+       
 
         int subSize = endIndex - startIndex + 1;
         T* subItems = new T[subSize];
@@ -106,10 +122,10 @@ public:
         return result;
     }
 
-    // Конкатенация
+   
     ArraySequence<T>* Concat(Sequence<T>* other) override {
         ArraySequence<T>* newseq = Instance();
-        if (other == nullptr) throw std::invalid_argument("Other sequence is null");
+       
 
         int oldSize = newseq->GetLength();
         int otherSize = other->GetLength();
@@ -122,26 +138,43 @@ public:
     }
 };
 
-// Mutable версия
 template <class T>
 class MutableArraySequence : public ArraySequence<T> {
 public:
-    using ArraySequence<T>::ArraySequence;
+    // Явно объявляем конструкторы
+    MutableArraySequence() : ArraySequence<T>() {}
+
+    MutableArraySequence(T* items, int count)
+        : ArraySequence<T>(items, count) {}
+
+    MutableArraySequence(const DynamicArray<T>& arr)
+        : ArraySequence<T>(arr) {}
+
+    // Конструктор копирования
+    MutableArraySequence(const MutableArraySequence& other)
+        : ArraySequence<T>(other) {}  // Используем конструктор копирования базового класса
 
     ArraySequence<T>* Instance() override {
         return this;
     }
 
     ArraySequence<T>* Clone() const override {
-        return new MutableArraySequence<T>(*this->items);
+        return new MutableArraySequence<T>(*this);
     }
 };
 
-// Immutable версия
 template <class T>
 class ImmutableArraySequence : public ArraySequence<T> {
 public:
-    using ArraySequence<T>::ArraySequence;
+    ImmutableArraySequence(T* items, int count)
+        : ArraySequence<T>(items, count) {}
+
+    ImmutableArraySequence()
+        : ArraySequence<T>() {}
+
+    ImmutableArraySequence(const DynamicArray<T>& arr)
+        : ArraySequence<T>(arr) {}
+
 
     ArraySequence<T>* Instance() override {
         return this->Clone();

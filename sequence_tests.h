@@ -31,22 +31,26 @@ void run_sequence_tests(const std::string& input_file, const std::string& output
     if (!in.is_open()) throw std::runtime_error("Cannot open input file");
     if (!out.is_open()) throw std::runtime_error("Cannot open output file");
 
-    // Чтение входных данных
+   
     int arr_size, list_size;
     in >> arr_size >> list_size;
-
     auto arr_data = read_data(in, arr_size);
     auto list_data = read_data(in, list_size);
-
-    // Тестирование ArraySequence
-    out << "==== Testing MutableArraySequence ====\n";
+  
+    int manual_data[] = {55,66,77};
+    MutableArraySequence<int> arr0(manual_data, 3); 
+    MutableArraySequence<MutableArraySequence<int>> arr;  
+    arr.Append(arr0);
+    out << "0 0 element: " << arr.Get(0).Get(2) << "\n";
+   
+    out << " Testing MutableArraySequence \n";
     MutableArraySequence<int> mutable_arr(arr_data.data(), arr_size);
     print_sequence(&mutable_arr, "Initial MutableArray", out);
 
     mutable_arr.Append(10)->Prepend(5)->InsertAt(7, 1);
     print_sequence(&mutable_arr, "Modified MutableArray", out);
 
-    out << "\n==== Testing ImmutableArraySequence ====\n";
+    out << "\n Testing ImmutableArraySequence \n";
     ImmutableArraySequence<int> immutable_arr(arr_data.data(), arr_size);
     print_sequence(&immutable_arr, "Original ImmutableArray", out);
 
@@ -54,13 +58,13 @@ void run_sequence_tests(const std::string& input_file, const std::string& output
     print_sequence(&immutable_arr, "Original After Append", out);
     print_sequence(modified_arr, "New ImmutableArray", out);
 
-    // Тестирование ListSequence
-    out << "\n==== Testing MutableListSequence ====\n";
+    
+    out << "\n     Testing MutableListSequence \n";
     MutableListSequence<int> mutable_list(list_data.data(), list_size);
     mutable_list.Append(100)->Prepend(50);
     print_sequence(&mutable_list, "Modified MutableList", out);
 
-    out << "\n==== Testing ImmutableListSequence ====\n";
+    out << "\n Testing ImmutableListSequence \n";
     ImmutableListSequence<int> immutable_list(list_data.data(), list_size);
     print_sequence(&immutable_list, "Original ImmutableList", out);
 
@@ -68,20 +72,12 @@ void run_sequence_tests(const std::string& input_file, const std::string& output
     print_sequence(&immutable_list, "Original After Append", out);
     print_sequence(new_list, "New ImmutableList", out);
 
-    // Advanced Tests
-    out << "\n==== Advanced Checks ====\n";
 
-    
+    mutable_arr.Concat(&immutable_list);
+    print_sequence(&mutable_arr, "Concat", out);
 
-    ImmutableListSequence<int> i_list;
-    auto i1 = i_list.Append(1);
-    auto i2 = i_list.Append(2);
-    out << "Immutable same instance? " << (i1 == i2 ? "YES" : "NO") << "\n";
-
-    MutableArraySequence<int> m_arr;
-    auto m1 = m_arr.Append(1);
-    auto m2 = m_arr.Append(2);
-    out << "Mutable same instance? " << (m1 == m2 ? "YES" : "NO") << "\n";
+  
+   
 
     
 }
